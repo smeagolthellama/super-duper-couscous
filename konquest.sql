@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Oct 23, 2018 at 05:09 PM
+-- Generation Time: Oct 24, 2018 at 12:39 PM
 -- Server version: 10.1.35-MariaDB-1
 -- PHP Version: 7.2.9-1
 
@@ -19,6 +19,22 @@ SET time_zone = "+00:00";
 --
 -- Database: `konquest`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `fleets`
+--
+
+CREATE TABLE `fleets` (
+  `fleet_id` int(10) NOT NULL,
+  `user_id` int(10) DEFAULT NULL,
+  `ships` int(10) DEFAULT NULL,
+  `source_planet` int(10) DEFAULT NULL,
+  `destin_planet` int(10) DEFAULT NULL,
+  `left_time` datetime DEFAULT NULL,
+  `arrival_time` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -88,6 +104,15 @@ CREATE TABLE `users` (
 --
 
 --
+-- Indexes for table `fleets`
+--
+ALTER TABLE `fleets`
+  ADD PRIMARY KEY (`fleet_id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `source_planet` (`source_planet`),
+  ADD KEY `destin_planet` (`destin_planet`);
+
+--
 -- Indexes for table `games`
 --
 ALTER TABLE `games`
@@ -97,30 +122,42 @@ ALTER TABLE `games`
 -- Indexes for table `notifs`
 --
 ALTER TABLE `notifs`
-  ADD PRIMARY KEY (`notif_id`);
+  ADD PRIMARY KEY (`notif_id`),
+  ADD KEY `planet2_id` (`planet2_id`),
+  ADD KEY `game_id` (`game_id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `planet1_id` (`planet1_id`);
 
 --
 -- Indexes for table `planets`
 --
 ALTER TABLE `planets`
-  ADD PRIMARY KEY (`planet_id`);
+  ADD PRIMARY KEY (`planet_id`),
+  ADD KEY `game_id` (`game_id`),
+  ADD KEY `owner_id` (`owner_id`);
 
 --
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`user_id`),
-  ADD UNIQUE KEY `user_cookie` (`user_cookie`);
+  ADD UNIQUE KEY `user_cookie` (`user_cookie`),
+  ADD KEY `user_game_id` (`user_game_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
 --
 
 --
+-- AUTO_INCREMENT for table `fleets`
+--
+ALTER TABLE `fleets`
+  MODIFY `fleet_id` int(10) NOT NULL AUTO_INCREMENT;
+--
 -- AUTO_INCREMENT for table `games`
 --
 ALTER TABLE `games`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 --
 -- AUTO_INCREMENT for table `notifs`
 --
@@ -135,7 +172,46 @@ ALTER TABLE `planets`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `fleets`
+--
+ALTER TABLE `fleets`
+  ADD CONSTRAINT `fleets_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
+  ADD CONSTRAINT `fleets_ibfk_2` FOREIGN KEY (`source_planet`) REFERENCES `planets` (`planet_id`),
+  ADD CONSTRAINT `fleets_ibfk_3` FOREIGN KEY (`destin_planet`) REFERENCES `planets` (`planet_id`) ON UPDATE CASCADE;
+
+--
+-- Constraints for table `notifs`
+--
+ALTER TABLE `notifs`
+  ADD CONSTRAINT `notifs_ibfk_1` FOREIGN KEY (`planet1_id`) REFERENCES `planets` (`planet_id`),
+  ADD CONSTRAINT `notifs_ibfk_2` FOREIGN KEY (`planet2_id`) REFERENCES `planets` (`planet_id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `notifs_ibfk_3` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
+  ADD CONSTRAINT `notifs_ibfk_4` FOREIGN KEY (`game_id`) REFERENCES `games` (`id`),
+  ADD CONSTRAINT `notifs_ibfk_5` FOREIGN KEY (`game_id`) REFERENCES `games` (`id`),
+  ADD CONSTRAINT `notifs_ibfk_6` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
+  ADD CONSTRAINT `notifs_ibfk_7` FOREIGN KEY (`planet1_id`) REFERENCES `planets` (`planet_id`);
+
+--
+-- Constraints for table `planets`
+--
+ALTER TABLE `planets`
+  ADD CONSTRAINT `planets_ibfk_1` FOREIGN KEY (`owner_id`) REFERENCES `users` (`user_id`),
+  ADD CONSTRAINT `planets_ibfk_2` FOREIGN KEY (`game_id`) REFERENCES `games` (`id`),
+  ADD CONSTRAINT `planets_ibfk_3` FOREIGN KEY (`owner_id`) REFERENCES `users` (`user_id`);
+
+--
+-- Constraints for table `users`
+--
+ALTER TABLE `users`
+  ADD CONSTRAINT `users_ibfk_1` FOREIGN KEY (`user_game_id`) REFERENCES `games` (`id`),
+  ADD CONSTRAINT `users_ibfk_2` FOREIGN KEY (`user_game_id`) REFERENCES `games` (`id`);
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
